@@ -7,7 +7,9 @@ int main(int argc, char **argv)
     int listenfd, connfd;   // listen 소켓과 연결된 클라이언트 소켓의 파일 디스크립터
     socklen_t clientlen;    // 클라이언트 주소 길이
     struct sockaddr_storage clientaddr;  // 클라이언트의 주소 정보 저장하는 구조체
-    char client_hostname[MAXLINE], client_port[MAXLINE];    // 클라이언트 호스트 이름과 포트 번호 저장하는 배열
+
+    // 클라이언트 호스트 이름과 포트 번호 저장하는 배열
+    char client_hostname[MAXLINE], client_port[MAXLINE];    
 
     if (argc != 2) {    //포트 번호 입력 안된 경우
 	fprintf(stderr, "usage: %s <port>\n", argv[0]);     // 안내 메세지 출력
