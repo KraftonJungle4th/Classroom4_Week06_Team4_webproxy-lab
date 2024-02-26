@@ -1,7 +1,3 @@
-/*
- * echo - read and echo text lines until client closes connection
- */
-/* $begin echo */
 #include "csapp.h"
 
 void echo(int connfd) 
@@ -16,4 +12,3 @@ void echo(int connfd)
 	Rio_writen(connfd, buf, n);
     }
 }
-/* $end echo */
