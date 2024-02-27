@@ -1,10 +1,22 @@
 <html>
-<head><title>test</title></head>
+<head>
+    <meta charset="utf-8">
+    <title>tiny-webserver</title>
+</head>
 <body> 
 <img align="middle" src="godzilla.gif">
 Dave O'Hallaron
+<!-- 영상 -->
 <video muted autoplay loop width="1500px" height="1200px">
     <source src ="wallpaper.mp4">
 </video> 
+
+<!-- adder를 위한 HTML 태그 -->
+<form action ="cgi-bin/adder" method="GET">
+    <input name="n1" type="text">
+    <input name="n2" type="text">
+    <input type="submit">
+</form>
+
 </body>
 </html>
