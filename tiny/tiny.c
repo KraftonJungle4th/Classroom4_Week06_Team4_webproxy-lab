@@ -17,7 +17,8 @@ void serve_dynamic(int fd, char *filename, char *cgiargs);
 void clienterror(int fd, char *cause, char *errnum, char *shortmsg,
                  char *longmsg);
 
-char *http_version;           
+char *http_version;       
+char *http_method;       
 
 int main(int argc, char **argv) {
   int listenfd, connfd;
@@ -57,8 +58,9 @@ void doit(int fd)
 
   sscanf(buf, "%s %s %s", method, uri, version);
   http_version = version;
-  
-  if (strcasecmp(method, "GET")) {
+  http_method = method;
+
+  if (strcasecmp(method, "GET") & strcasecmp(method, "HEAD")) {
     clienterror(fd, method, "501", "Not implemented", "Tiny does not implement this method");
     return;
   }
@@ -158,6 +160,8 @@ void serve_static(int fd, char *filename, int filesize)
   printf("Response headers:\n");
   printf("%s", buf);
 
+  if (!strcasecmp(http_method, "HEAD")) return;
+
   srcfd = Open(filename, O_RDONLY, 0);
   srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
   Close(srcfd);
@@ -189,6 +193,8 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
   sprintf(buf, "%sYour HTTP Version is: %s\r\n\r\n", buf, http_version);
   Rio_writen(fd, buf, strlen(buf));
 
+  if (!strcasecmp(http_method, "HEAD")) return;
+  
   if (Fork() == 0) {
     setenv("QUERY_STRING", cgiargs, 1);
     Dup2(fd, STDOUT_FILENO);
