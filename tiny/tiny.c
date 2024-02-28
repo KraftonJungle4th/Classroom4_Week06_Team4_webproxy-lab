@@ -179,6 +179,8 @@ void get_filetype(char *filename, char *filetype)
     strcpy(filetype, "image/png");
   else if (strstr(filename, ".jpg"))
     strcpy(filetype, "image/jpeg");
+  else if (strstr(filename, ".mp4"))
+    strcpy(filetype, "video/mp4");
   else
     strcpy(filetype, "text/plain");
 }
@@ -194,7 +196,7 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
   Rio_writen(fd, buf, strlen(buf));
 
   if (!strcasecmp(http_method, "HEAD")) return;
-  
+
   if (Fork() == 0) {
     setenv("QUERY_STRING", cgiargs, 1);
     Dup2(fd, STDOUT_FILENO);
