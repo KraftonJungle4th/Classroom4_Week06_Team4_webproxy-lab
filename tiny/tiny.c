@@ -121,7 +121,7 @@ void read_requesthdrs(rio_t *rp)
 int parse_uri(char *uri, char *filename, char *cgiargs)
 {
   char *ptr;
-  // /home.html
+
   if (!strstr(uri, "cgi-bin")) { // 정적 컨텐츠
     strcpy(cgiargs, "");
     strcpy(filename, ".");
@@ -196,7 +196,7 @@ void serve_dynamic(int fd, char *filename, char *cgiargs)
   sprintf(buf, "HTTP/1.0 200 OK\r\n");
   Rio_writen(fd, buf, strlen(buf));
   sprintf(buf, "Server: Tiny Web Server\r\n");
-  sprintf(buf, "%sYour HTTP Version is: %s\r\n\r\n", buf, http_version);
+  sprintf(buf, "%sYour HTTP Version is: %s\r\n", buf, http_version);
   Rio_writen(fd, buf, strlen(buf));
 
   if (!strcasecmp(http_method, "HEAD")) return;
