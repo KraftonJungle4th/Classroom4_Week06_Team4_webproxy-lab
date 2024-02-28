@@ -1,0 +1,24 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>adder</title>
+    <script>
+        function sendNumbers() {
+            n1 = document.getElementById('num1').value
+            n2 = document.getElementById('num2').value
+            window.location.href = `/cgi-bin/adder?${n1}&${n2}`
+        }
+    </script>
+</head>
+<body>
+    <div style="text-align: center; margin-top: 30%;">
+        <p>
+            <input id="num1" type="number" name="num1">
+            <span>+</span>
+            <input id="num2" type="number" name="num2">
+            <button type="submit" onclick="sendNumbers()">Add</button> 
+        </p>
+    </div>
+</body>
+</html>
