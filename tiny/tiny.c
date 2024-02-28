@@ -121,7 +121,7 @@ void read_requesthdrs(rio_t *rp)
 int parse_uri(char *uri, char *filename, char *cgiargs)
 {
   char *ptr;
-
+  // /home.html
   if (!strstr(uri, "cgi-bin")) { // 정적 컨텐츠
     strcpy(cgiargs, "");
     strcpy(filename, ".");
@@ -163,10 +163,14 @@ void serve_static(int fd, char *filename, int filesize)
   if (!strcasecmp(http_method, "HEAD")) return;
 
   srcfd = Open(filename, O_RDONLY, 0);
-  srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
+  
+  // srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0);
+  srcp = malloc(filesize * sizeof(char));
+  Rio_readn(srcfd, srcp, filesize);
   Close(srcfd);
   Rio_writen(fd, srcp, filesize);
-  Munmap(srcp, filesize);
+  // Munmap(srcp, filesize);
+  free(srcp);
 }
 
 void get_filetype(char *filename, char *filetype) 
