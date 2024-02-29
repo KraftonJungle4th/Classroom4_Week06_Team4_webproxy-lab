@@ -36,13 +36,13 @@
  *
  * < Robust Input/Output Functions > (fd = file descriptor, rp = rio_t pointer, b = buffer)
  * # Unbuffered
- * Rio_readn(fd, b, c) : fd에서 c 바이트만큼 읽어들여서 b에 저장한다.
- * Rio_writen(fd, b, c) : fd에 b를 c 바이트만큼 쓴다.
+ * rio_readn(fd, buf, n) : fd에서 n 바이트만큼 읽어서 buf에 저장한다.
+ * rio_writen(fd, buf, n) : buf에 저장된 n 바이트만큼을 fd에 쓴다.
  *
  * # Buffered
- * Rio_readinitb(rp, fd) : rp를 fd로 초기화한다.
- * Rio_readlineb(rp, b, c) : rp에서 한 줄 단위로 입력을 받는데, 최대 c 바이트만큼 읽어들여서 b에 저장한다.
- * Rio_readbn(rp, b, c) : rp에서 c 바이트만큼 읽어들여서 b에 저장한다.
+ * rio_readinitb(rp, fd) : rp를 fd로 초기화한다.
+ * rio_readlineb(rp, buf, max_n) : rp에서 최대 max_n 바이트만큼 한 줄 단위로 입력을 받아 buf에 저장한다.
+ * rio_readbn(rp, buf, n) : rp에서 n 바이트만큼 읽어들여서 buf에 저장한다.
  *
  * Updated 11/2019 droh
  *   - Fixed sprintf() aliasing issue in serve_static(), and clienterror().
@@ -77,7 +77,7 @@ int main(int argc, char **argv)
     clientlen = sizeof(clientaddr);
     connfd = Accept(listenfd, (SA *)&clientaddr, &clientlen);                       // 연결 요청을 반복적으로 수락
     Getnameinfo((SA *)&clientaddr, clientlen, hostname, MAXLINE, port, MAXLINE, 0); // 클라이언트의 호스트 이름과 포트 번호를 찾는다.
-    printf("Accepted connection from (%s, %s)\n", hostname, port);
+    printf("# Accepted connection from %s:%s\n", hostname, port);
     doit(connfd);  // 트랜잭션 수행
     Close(connfd); // 연결 종료
   }
@@ -94,10 +94,12 @@ void doit(int fd)
   char filename[MAXLINE], cgiargs[MAXLINE];
   rio_t rio;
 
+  // Request Line 읽기 (Client -> Server)
   Rio_readinitb(&rio, fd);
-  if (!Rio_readlineb(&rio, buf, MAXLINE)) // 요청 라인을 읽기
+  if (!Rio_readlineb(&rio, buf, MAXLINE))
     return;
-  printf("%s", buf);
+  printf("# Request Line from Client:\n %s\n", buf);
+
   /* e.g.
    * buf에 저장된 요청 라인인 "GET /godzilla.gif HTTP/1.1"을 읽어들여서
    * method = "GET",
@@ -151,7 +153,7 @@ void doit(int fd)
 void read_requesthdrs(rio_t *rp)
 {
   char buf[MAXLINE];
-
+  printf("# Request Headers from Client:\n");
   Rio_readlineb(rp, buf, MAXLINE);
   printf("%s", buf);
   while (strcmp(buf, "\r\n"))
@@ -217,26 +219,36 @@ void serve_static(int fd, char *filename, int filesize)
   int srcfd;
   char *srcp, filetype[MAXLINE], buf[MAXBUF];
 
-  get_filetype(filename, filetype);    // 파일 이름에서 파일 타입 결정
+  get_filetype(filename, filetype); // 파일 이름에서 파일 타입 결정
 
   /* Response Line과 Response Header를 클라이언트에게 보낸다. */
+  printf("# Response Line & Header to Client:\n");
   sprintf(buf, "HTTP/1.0 200 OK\r\n"); // Response Line
   Rio_writen(fd, buf, strlen(buf));
+  printf("%s", buf);
+
   sprintf(buf, "Server: Tiny Web Server\r\n"); // Response Header
   Rio_writen(fd, buf, strlen(buf));
+  printf("%s", buf);
+
   sprintf(buf, "Content-length: %d\r\n", filesize);
   Rio_writen(fd, buf, strlen(buf));
+  printf("%s", buf);
+
   sprintf(buf, "Content-type: %s\r\n\r\n", filetype); // Response Header + Empty Line
   Rio_writen(fd, buf, strlen(buf));
+  printf("%s", buf);
 
   /* Response Body를 클라이언트에게 보낸다 */
-  srcfd = Open(filename, O_RDONLY, 0);                        // 읽을 파일을 열고 파일 디스크럽터를 얻는다.
+  printf("# Response Body to Client:\n");
+  srcfd = Open(filename, O_RDONLY, 0); // 읽을 파일을 열고 파일 디스크럽터를 얻는다.
   // srcp = Mmap(0, filesize, PROT_READ, MAP_PRIVATE, srcfd, 0); // mmap을 사용하여 요청된 파일을 VM 영역에 매핑
-  srcp = (char *)malloc(filesize);                            // 숙제 문제 11.9: mmap 대신 malloc을 사용하여 메모리를 할당하고,
-  Rio_readn(srcfd, srcp, filesize);                           // 숙제 문제 11.9: 파일을 읽어서 srcp에 저장
-  Close(srcfd);                                               // 더 이상 파일 디스크럽터가 필요하지 않으므로 파일을 닫는다
-  Rio_writen(fd, srcp, filesize);                             // 클라이언트로 파일 전송을 수행.
-  free(srcp);                                                 // 숙제 문제 11.9: malloc을 사용하였기에 Munmap 대신 free를 사용
+  srcp = (char *)malloc(filesize);  // 숙제 문제 11.9: mmap 대신 malloc을 사용하여 메모리를 할당하고,
+  Rio_readn(srcfd, srcp, filesize); // 숙제 문제 11.9: 파일을 읽어서 srcp에 저장
+  Close(srcfd);                     // 더 이상 파일 디스크럽터가 필요하지 않으므로 파일을 닫는다
+  Rio_writen(fd, srcp, filesize);   // 클라이언트로 파일 전송을 수행.
+  printf("%s\n", srcp);
+  free(srcp); // 숙제 문제 11.9: malloc을 사용하였기에 Munmap 대신 free를 사용
   // Munmap(srcp, filesize);                                     // 매핑된 VM 영역을 해제한다.
 }
 
