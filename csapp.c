@@ -549,7 +549,7 @@ void Fwrite(const void *ptr, size_t size, size_t nmemb, FILE *stream)
  ****************************/
 
 int Socket(int domain, int type, int protocol)
-{
+{ 
     int rc;
 
     if ((rc = socket(domain, type, protocol)) < 0)
@@ -566,7 +566,7 @@ void Setsockopt(int s, int level, int optname, const void *optval, int optlen)
 }
 
 void Bind(int sockfd, struct sockaddr *my_addr, int addrlen)
-{
+{ 
     int rc;
 
     if ((rc = bind(sockfd, my_addr, addrlen)) < 0)
@@ -574,7 +574,7 @@ void Bind(int sockfd, struct sockaddr *my_addr, int addrlen)
 }
 
 void Listen(int s, int backlog)
-{
+{ 
     int rc;
 
     if ((rc = listen(s, backlog)) < 0)
@@ -582,7 +582,7 @@ void Listen(int s, int backlog)
 }
 
 int Accept(int s, struct sockaddr *addr, socklen_t *addrlen)
-{
+{ 
     int rc;
 
     if ((rc = accept(s, addr, addrlen)) < 0)
@@ -591,7 +591,7 @@ int Accept(int s, struct sockaddr *addr, socklen_t *addrlen)
 }
 
 void Connect(int sockfd, struct sockaddr *serv_addr, int addrlen)
-{
+{ 
     int rc;
 
     if ((rc = connect(sockfd, serv_addr, addrlen)) < 0)
