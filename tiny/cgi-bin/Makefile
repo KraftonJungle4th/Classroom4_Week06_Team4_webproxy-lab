@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall -I .. -w
+CFLAGS = -O2 -Wall -I ..
 
 all: adder
 

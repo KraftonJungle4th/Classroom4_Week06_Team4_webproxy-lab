@@ -61,7 +61,3 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
-.noproxy
-.proxy
-.vscode
