@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -O2 -Wall -I .
+CFLAGS = -O2 -Wall -I . -w
 
 # This flag includes the Pthreads library on a Linux box.
 # Others systems will probably require something different.
@@ -19,4 +19,3 @@ cgi:
 clean:
 	rm -f *.o tiny *~
 	(cd cgi-bin; make clean)
-
